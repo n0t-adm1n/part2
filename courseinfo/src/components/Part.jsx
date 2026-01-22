@@ -1,5 +1,5 @@
 const Part = ({part}) => {
-  console.log(part);
+  // console.log(part);
   
   return (
     <div>{part.name + " " + part.exercises}</div>
