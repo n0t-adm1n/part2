@@ -25,21 +25,34 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(persons.some(person => person.name === newName)) {
-      // alert(`${newName} is already added to the phonebook`)
+    const updatePerson = persons.find(person => person.name === newName)
+
+
+    const nameObject = {
+      name: newName,
+      number: newNumber,
+    }
+    
+
+    if(updatePerson) {
       const confirmMessage = `${newName} is already added to the phonebook, replace old number with new one?`;
-      if(confirm(confirmMessage)) {
-        console.log('want to change the number')
+      if(confirm(confirmMessage)) {    
+        personsService
+          .update(updatePerson.id, nameObject)
+          .then(returnedPerson => setPersons(persons.map(person => 
+              person.id !== updatePerson.id ? person : returnedPerson
+          )))
+
+
+          setNewName("")
+          setNewNumber("")
+          
       } else {
         console.log('dont want to change the number')
       }
       return ;
     }
 
-    const nameObject = {
-      name: newName,
-      number: newNumber,
-    }
 
     //posting new data to the db & setting newPerson from the response back
     personsService
