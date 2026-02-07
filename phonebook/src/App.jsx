@@ -26,7 +26,13 @@ const App = () => {
     e.preventDefault();
 
     if(persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to the phonebook`)
+      // alert(`${newName} is already added to the phonebook`)
+      const confirmMessage = `${newName} is already added to the phonebook, replace old number with new one?`;
+      if(confirm(confirmMessage)) {
+        console.log('want to change the number')
+      } else {
+        console.log('dont want to change the number')
+      }
       return ;
     }
 
@@ -58,15 +64,16 @@ const App = () => {
     setFilter(e.target.value);
   }
 
-  const handleDelete = (id) => {
-    console.log(`Deleting ${id} person`)
+  const handleDelete = (person) => {
+    if(confirm(`Delete ${person.name} ?`)) {
+      personsService
+        .deletePerson(person.id)
+        .then(deletedPerson => {
+          setPersons(persons.filter(p => p.id !== person.id))
+        })
+    } 
   }
 
-  // const renderPersons = () => {
-  //   if(filter === '') return persons.map((person,index) => <Person key={index} name={person.name} number={person.number} />)
-
-  //   return persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())).map((person,index) => <Person key={index} name={person.name} number={person.number} />)
-  // }
 
   return (
     <div>
