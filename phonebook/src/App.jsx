@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+
+import personsService from './services/persons'
+
 import Filter from './components/Filter';
 import Form from './components/Form';
 import Person from './components/Person';
@@ -11,14 +14,11 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('')
 
-//fetching data from db
+//fetching initial persons data from db
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        console.log(response.data)
-        setPersons(response.data)
-      })
+    personsService
+      .getAll()
+      .then(initialPersons => setPersons(initialPersons))
   },[])
 
 
@@ -34,8 +34,13 @@ const App = () => {
       name: newName,
       number: newNumber,
     }
-    // setPersons(persons.concat(nameObject));
-    setPersons([...persons, nameObject])
+
+    //posting new data to the db & setting newPerson from the response back
+    personsService
+      .create(nameObject)
+      .then(newPerson => setPersons([...persons, newPerson]))
+
+    // setPersons([...persons, nameObject])
 
     setNewName("");
     setNewNumber("");
@@ -53,11 +58,15 @@ const App = () => {
     setFilter(e.target.value);
   }
 
-  const renderPersons = () => {
-    if(filter === '') return persons.map((person,index) => <Person key={index} name={person.name} number={person.number} />)
-
-    return persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())).map((person,index) => <Person key={index} name={person.name} number={person.number} />)
+  const handleDelete = (id) => {
+    console.log(`Deleting ${id} person`)
   }
+
+  // const renderPersons = () => {
+  //   if(filter === '') return persons.map((person,index) => <Person key={index} name={person.name} number={person.number} />)
+
+  //   return persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())).map((person,index) => <Person key={index} name={person.name} number={person.number} />)
+  // }
 
   return (
     <div>
@@ -67,7 +76,7 @@ const App = () => {
       <Form newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={handleSubmit}/>
       <h2>Numbers</h2>
      
-      <Persons persons={persons} filter={filter} />
+      <Persons persons={persons} filter={filter} handleDelete={handleDelete} />
     </div>
   )
 }
