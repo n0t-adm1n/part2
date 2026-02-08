@@ -7,12 +7,15 @@ import Filter from './components/Filter';
 import Form from './components/Form';
 import Person from './components/Person';
 import Persons from './components/Persons';
+import Notifications from './components/Notification';
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('')
+
+  const [notification, setNotification] = useState(null)
 
 //fetching initial persons data from db
   useEffect(() => {
@@ -57,9 +60,18 @@ const App = () => {
     //posting new data to the db & setting newPerson from the response back
     personsService
       .create(nameObject)
-      .then(newPerson => setPersons([...persons, newPerson]))
+      .then(newPerson => {
+        setPersons([...persons, newPerson])
 
-    // setPersons([...persons, nameObject])
+        //notify the user of creation of person
+        setNotification(`Added ${newPerson.name}`)
+
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+         
+      })
+
 
     setNewName("");
     setNewNumber("");
@@ -91,9 +103,14 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notifications message={notification} />
+
       <Filter filter={filter} handleFilterChange={handleFilterChange}/>
+      
       <h2>add a new</h2>
       <Form newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={handleSubmit}/>
+      
       <h2>Numbers</h2>
      
       <Persons persons={persons} filter={filter} handleDelete={handleDelete} />
