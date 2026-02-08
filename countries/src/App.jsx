@@ -6,6 +6,11 @@ function App() {
   const [country, setCountry] = useState('')
   const [countryAll, setCountryAll] = useState([]);
   const [countryAllDetail, setCountryAllDetail] = useState([])
+  const [countryIndex, setCountryIndex] = useState(null)
+  const [weather, setWeather] = useState(null)
+ 
+  //api key
+  const api_key = import.meta.env.VITE_WEATHER_KEY
 
 	const filteredCountries = country === "" ? [] : countryAll.filter(con => con.cname.toLowerCase().includes(country.toLowerCase()) 
 														|| con.oname.toLowerCase().includes(country.toLowerCase()))
@@ -13,6 +18,10 @@ function App() {
   const handleCountryChange = (e) => {
     setCountry(e.target.value)
   }
+
+  const handleShowCountry = (con) => {
+    setCountryIndex(con.index)
+  } 
 
 
   // get the initial list of countries
@@ -32,39 +41,50 @@ function App() {
       })
   }, [])
 
-  const getMessage = () => {
-	if(!displayMessage) return null
-
-	return (
-		<p>Too many matches, specify another filter</p>
-	)
+  
+useEffect(()=> {
+  if(filteredCountries.length === 1) {
+    setCountryIndex(filteredCountries[0].index)
+  } else if(filteredCountries.length === 0 || country === ''){
+    setCountryIndex(null)
   }
+}, [filteredCountries, country])  
 
-  const displayCountryList = () => {
-	if(countryList.length == 0) return null
+  useEffect(() => {
+    if(countryIndex === null) {
+      setWeather(null)  
+      return;
+    }
 
-	return (
-		countryList.map(con => <li key={con.index}>{con.cname}</li>)
-	)
-	
-  }
+    setWeather(null)
+
+    const lat = countryAllDetail[countryIndex].capitalInfo.latlng[0]
+    const lon = countryAllDetail[countryIndex].capitalInfo.latlng[1]
+
+    console.log(lat, lon)
+
+    axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`)
+      .then(response => {
+        setWeather(response.data)
+        axios.get()
+      })
+  }, [countryIndex])
 
   const displayCountry = () => {
 
 	if(filteredCountries.length > 10) return <p>Too many matches, specify another filter</p>
 	else if(filteredCountries.length <= 10 && filteredCountries.length > 1) {
 		return (
-			<ul>
+			<>
 				{filteredCountries.map(con => (
-				<li key={con.cname}>{con.cname}</li>
+				<p key={con.cname}>{con.cname} <button onClick={() => {
+          handleShowCountry(con)
+        }}>show</button> </p>
 				))}
-          	</ul>
+      </>
 		)
 	}
-	else if(filteredCountries.length === 1){
-    let con = countryAll.filter(c => c.index === filteredCountries[0].index)
-		return <Country country={countryAllDetail[con[0].index]}/>
-	}
+	
 	
   }
 
@@ -74,6 +94,8 @@ function App() {
       Find countries<input value={country} onChange={handleCountryChange}></input>
 
 	  {displayCountry()}
+
+    {countryIndex === null || weather === null ? null : <Country country={countryAllDetail[countryIndex]} weather={weather} />}
     </>
   )
 }

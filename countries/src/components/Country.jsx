@@ -1,7 +1,7 @@
 import React from 'react'
 
-const Country = ({country}) => {
-    console.log(country)
+const Country = ({country, weather}) => {
+    console.log(weather.weather[0].icon)
     const languages = [];
     for(const lang in country.languages) {
         
@@ -21,6 +21,11 @@ const Country = ({country}) => {
         </ul>
 
         <img src={country.flags.png} />
+        
+        <h2>Weather in {country.capital[0]}</h2>
+        <p>Temperature {weather.main.temp} celius</p>
+        <img src={` https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}/>
+        <p>Wind {weather.wind.speed} m/s</p>
     </>
   )
 }
