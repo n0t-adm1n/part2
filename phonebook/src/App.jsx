@@ -44,7 +44,17 @@ const App = () => {
           .update(updatePerson.id, nameObject)
           .then(returnedPerson => setPersons(persons.map(person => 
               person.id !== updatePerson.id ? person : returnedPerson
-          )))
+          ))).catch(error => {
+            //error handling
+            setNotification({
+              message: `Information of ${updatePerson.name} has already been removed from server`,
+              type: 'unsuccessful'
+            })
+
+            setTimeout(()=> {
+              setNotification(null)
+            }, 5000)
+          })
 
 
           setNewName("")
@@ -64,12 +74,15 @@ const App = () => {
         setPersons([...persons, newPerson])
 
         //notify the user of creation of person
-        setNotification(`Added ${newPerson.name}`)
+        setNotification({
+          message: `Added ${newPerson.name}`,
+          type: 'successful'
+        })
 
         setTimeout(() => {
           setNotification(null)
         }, 5000)
-         
+
       })
 
 
@@ -95,6 +108,15 @@ const App = () => {
         .deletePerson(person.id)
         .then(deletedPerson => {
           setPersons(persons.filter(p => p.id !== person.id))
+        }).catch(error => {
+          setNotification({
+            message: `${person.name} is already deleted from database, refresh application to get latest list`,
+            type: 'unsuccessful'
+          })
+
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
     } 
   }
@@ -104,7 +126,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
-      <Notifications message={notification} />
+      <Notifications notification={notification} />
 
       <Filter filter={filter} handleFilterChange={handleFilterChange}/>
       

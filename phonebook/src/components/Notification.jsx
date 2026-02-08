@@ -1,19 +1,24 @@
 import React from 'react'
 
-const Notifications = ({message}) => {
+const Notifications = ({notification}) => {
+    if(notification == null) return null;
+    
+    let color;
+    if(notification.type == 'successful') {
+        color = 'green'
+    } else color = 'red'
 
     const styleObject = {
-        color: 'green',
+        color: color,
         borderStyle: 'solid',
         borderRadius: '5px',
         padding: '10px',
         backgroundColor: 'lightgray'
     }
 
-    if(message == null) return null;
 
   return (
-    <h2 style={styleObject}>{message}</h2>
+    <h2 style={styleObject}>{notification.message}</h2>
   )
 }
 
